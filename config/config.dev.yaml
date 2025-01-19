@@ -1,0 +1,52 @@
+server:
+  port: ":8081"
+  host: "0.0.0.0"
+  timeout: 30s
+  compress: true
+
+database:
+  host: localhost
+  port: 5000
+  user: postgres
+  password: postgres
+  name: kufatech_dev
+  sslmode: disable
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 10
+
+auth:
+  access_token_secret: dev_access_secret
+  refresh_token_secret: dev_refresh_secret
+  access_token_ttl: 15m
+  refresh_token_ttl: 720h
+
+log:
+  level: debug
+  format: text
+
+security:
+  cors:
+    allowed_origins: ["http://localhost:3000", "http://localhost:8080"]
+    allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allowed_headers: ["Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Request-ID"]
+    exposed_headers: ["Link", "X-Total-Count", "X-Request-ID"]
+    allow_credentials: true
+    max_age: 86400
+
+middleware:
+  rate_limit:
+    requests: 100        # Requisições permitidas
+    window: "1m"         # Janela de tempo para o rate limit
+    auth_requests: 20    # Requisições permitidas para endpoints de autenticação
+    auth_window: "1m"    # Janela de tempo para endpoints de autenticação
+  timeout:
+    read: "15s"         # Timeout para leitura de requisições
+    write: "15s"        # Timeout para escrita de respostas
+    idle: "60s"         # Timeout para conexões ociosas
+  compression:
+    level: 5            # Nível de compressão (1-9, onde 9 é máximo) 

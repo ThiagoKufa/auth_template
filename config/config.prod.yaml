@@ -1,0 +1,39 @@
+server:
+  port: ":8081"
+  host: "0.0.0.0"
+  timeout: 30s
+  compress: true
+
+database:
+  host: "${DB_HOST}"
+  port: "${DB_PORT}"
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"
+  name: "${DB_NAME}"
+  sslmode: "require"
+
+redis:
+  host: "${REDIS_HOST}"
+  port: "${REDIS_PORT}"
+  password: "${REDIS_PASSWORD}"
+  db: "${REDIS_DB}"
+  pool_size: "${REDIS_POOL_SIZE}"
+
+auth:
+  access_token_secret: "${JWT_ACCESS_SECRET}"
+  refresh_token_secret: "${JWT_REFRESH_SECRET}"
+  access_token_ttl: "${JWT_ACCESS_TTL}"
+  refresh_token_ttl: "${JWT_REFRESH_TTL}"
+
+log:
+  level: "info"
+  format: "json"
+
+security:
+  cors:
+    allowed_origins: "${CORS_ALLOWED_ORIGINS}"
+    allowed_methods: "${CORS_ALLOWED_METHODS}"
+    allowed_headers: "${CORS_ALLOWED_HEADERS}"
+    exposed_headers: "${CORS_EXPOSED_HEADERS}"
+    allow_credentials: "${CORS_ALLOW_CREDENTIALS}"
+    max_age: "${CORS_MAX_AGE}" 
