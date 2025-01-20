@@ -22,10 +22,7 @@ WORKDIR /app
 
 # Copiar binário compilado
 COPY --from=builder /app/main .
-
-# Copiar arquivos de configuração
-COPY --from=builder /app/config ./config
-COPY --from=builder /app/.env .
+COPY --from=builder /app/.env.docker ./.env
 
 # Expor porta da API
 EXPOSE 8081

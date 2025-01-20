@@ -1,102 +1,144 @@
 package config
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
-
-	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Redis    RedisConfig    `mapstructure:"redis"`
-	Auth     AuthConfig     `mapstructure:"auth"`
-	Log      LogConfig      `mapstructure:"log"`
-	Security SecurityConfig `mapstructure:"security"`
+	Server   ServerConfig
+	Database DatabaseConfig
+	Redis    RedisConfig
+	Auth     AuthConfig
+	Log      LogConfig
+	Security SecurityConfig
 }
 
 type ServerConfig struct {
-	Host     string        `mapstructure:"host"`
-	Port     string        `mapstructure:"port"`
-	Timeout  time.Duration `mapstructure:"timeout"`
-	Compress bool          `mapstructure:"compress"`
+	Port     string
+	Timeout  time.Duration
+	Compress bool
 }
 
 type DatabaseConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	Name     string `mapstructure:"name"`
-	SSLMode  string `mapstructure:"sslmode"`
+	Host     string
+	Port     int
+	User     string
+	Password string
+	Name     string
+	SSLMode  string
 }
 
 type RedisConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Password string `mapstructure:"password"`
-	DB       int    `mapstructure:"db"`
-	PoolSize int    `mapstructure:"pool_size"`
+	Host     string
+	Port     int
+	Password string
+	DB       int
+	PoolSize int
 }
 
 type AuthConfig struct {
-	AccessTokenSecret  string        `mapstructure:"access_token_secret"`
-	RefreshTokenSecret string        `mapstructure:"refresh_token_secret"`
-	AccessTokenTTL     time.Duration `mapstructure:"access_token_ttl"`
-	RefreshTokenTTL    time.Duration `mapstructure:"refresh_token_ttl"`
+	AccessTokenSecret  string
+	RefreshTokenSecret string
+	AccessTokenTTL     time.Duration
+	RefreshTokenTTL    time.Duration
 }
 
 type LogConfig struct {
-	Level  string `mapstructure:"level"`
-	Format string `mapstructure:"format"`
+	Level  string
+	Format string
 }
 
 type SecurityConfig struct {
-	CORS CORSConfig `mapstructure:"cors"`
+	CORS CORSConfig
 }
 
 type CORSConfig struct {
-	AllowedOrigins   []string `mapstructure:"allowed_origins"`
-	AllowedMethods   []string `mapstructure:"allowed_methods"`
-	AllowedHeaders   []string `mapstructure:"allowed_headers"`
-	ExposedHeaders   []string `mapstructure:"exposed_headers"`
-	AllowCredentials bool     `mapstructure:"allow_credentials"`
-	MaxAge           int      `mapstructure:"max_age"`
+	AllowedOrigins   []string
+	AllowedMethods   []string
+	AllowedHeaders   []string
+	ExposedHeaders   []string
+	AllowCredentials bool
+	MaxAge           int
+}
+
+func getEnvOrDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvIntOrDefault(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func getEnvDurationOrDefault(key string, defaultValue time.Duration) time.Duration {
+	if value := os.Getenv(key); value != "" {
+		if duration, err := time.ParseDuration(value); err == nil {
+			return duration
+		}
+	}
+	return defaultValue
+}
+
+func getEnvStringSliceOrDefault(key string, defaultValue []string) []string {
+	if value := os.Getenv(key); value != "" {
+		return strings.Split(value, ",")
+	}
+	return defaultValue
 }
 
 func Load() (*Config, error) {
-	env := os.Getenv("APP_ENV")
-	if env == "" {
-		env = "dev"
+	cfg := &Config{
+		Server: ServerConfig{
+			Port:     getEnvOrDefault("SERVER_PORT", "8081"),
+			Timeout:  getEnvDurationOrDefault("SERVER_TIMEOUT", 30*time.Second),
+			Compress: true,
+		},
+		Database: DatabaseConfig{
+			Host:     getEnvOrDefault("DB_HOST", "localhost"),
+			Port:     getEnvIntOrDefault("DB_PORT", 5432),
+			User:     getEnvOrDefault("DB_USER", "postgres"),
+			Password: getEnvOrDefault("DB_PASSWORD", "postgres"),
+			Name:     getEnvOrDefault("DB_NAME", "kufatech_dev"),
+			SSLMode:  getEnvOrDefault("DB_SSL_MODE", "disable"),
+		},
+		Redis: RedisConfig{
+			Host:     getEnvOrDefault("REDIS_HOST", "localhost"),
+			Port:     getEnvIntOrDefault("REDIS_PORT", 6379),
+			Password: getEnvOrDefault("REDIS_PASSWORD", ""),
+			DB:       getEnvIntOrDefault("REDIS_DB", 0),
+			PoolSize: getEnvIntOrDefault("REDIS_POOL_SIZE", 10),
+		},
+		Auth: AuthConfig{
+			AccessTokenSecret:  getEnvOrDefault("JWT_ACCESS_SECRET", "dev_access_secret"),
+			RefreshTokenSecret: getEnvOrDefault("JWT_REFRESH_SECRET", "dev_refresh_secret"),
+			AccessTokenTTL:     getEnvDurationOrDefault("JWT_ACCESS_TTL", 15*time.Minute),
+			RefreshTokenTTL:    getEnvDurationOrDefault("JWT_REFRESH_TTL", 720*time.Hour),
+		},
+		Log: LogConfig{
+			Level:  getEnvOrDefault("LOG_LEVEL", "info"),
+			Format: getEnvOrDefault("LOG_FORMAT", "json"),
+		},
+		Security: SecurityConfig{
+			CORS: CORSConfig{
+				AllowedOrigins:   getEnvStringSliceOrDefault("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000", "http://localhost:8080"}),
+				AllowedMethods:   getEnvStringSliceOrDefault("CORS_ALLOWED_METHODS", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+				AllowedHeaders:   getEnvStringSliceOrDefault("CORS_ALLOWED_HEADERS", []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}),
+				ExposedHeaders:   getEnvStringSliceOrDefault("CORS_EXPOSED_HEADERS", []string{"Link"}),
+				AllowCredentials: true,
+				MaxAge:           getEnvIntOrDefault("CORS_MAX_AGE", 86400),
+			},
+		},
 	}
 
-	// Encontrar o diretório raiz do projeto
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, fmt.Errorf("erro ao obter diretório atual: %w", err)
-	}
-
-	// Configurar o Viper
-	v := viper.New()
-	v.SetConfigName(fmt.Sprintf("config.%s", env))
-	v.SetConfigType("yaml")
-	v.AddConfigPath(filepath.Join(wd, "config"))
-	v.AddConfigPath("../config")
-	v.AddConfigPath("../../config")
-	v.AutomaticEnv()
-
-	// Ler o arquivo de configuração
-	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("erro ao ler arquivo de configuração: %w", err)
-	}
-
-	var cfg Config
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("erro ao decodificar configuração: %w", err)
-	}
-
-	return &cfg, nil
+	return cfg, nil
 }
