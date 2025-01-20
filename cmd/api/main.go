@@ -6,10 +6,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/di"
-	"server_kufatech/internal/middleware"
-	"server_kufatech/internal/routes"
+	"auth-template/internal/config"
+	"auth-template/internal/di"
+	"auth-template/internal/middleware"
+	"auth-template/internal/routes"
 )
 
 func main() {

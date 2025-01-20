@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	apperrors "server_kufatech/internal/errors"
-	"server_kufatech/internal/interfaces/service"
-	"server_kufatech/pkg/logger"
+	apperrors "auth-template/internal/errors"
+	"auth-template/internal/interfaces/service"
+	"auth-template/pkg/logger"
 )
 
 type AuthHandler struct {

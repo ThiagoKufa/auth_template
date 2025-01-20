@@ -6,9 +6,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 
-	"server_kufatech/internal/handlers"
-	"server_kufatech/internal/middleware"
-	"server_kufatech/pkg/logger"
+	"auth-template/internal/handlers"
+	"auth-template/internal/middleware"
+	"auth-template/pkg/logger"
 )
 
 func SetupRoutes(

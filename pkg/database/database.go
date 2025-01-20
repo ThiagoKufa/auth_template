@@ -1,8 +1,8 @@
 package database
 
 import (
+	"auth-template/internal/config"
 	"fmt"
-	"server_kufatech/internal/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

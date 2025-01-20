@@ -5,6 +5,7 @@ APP_NAME=kufatech
 MAIN_PATH=./cmd/api
 BUILD_DIR=./build
 DOCKER_COMPOSE=docker-compose
+TEST_DB_URL=postgres://postgres:postgres@localhost:5000/kufatech_test?sslmode=disable
 
 # Cores para output
 GREEN=\033[0;32m
@@ -14,7 +15,7 @@ help: ## Mostra esta mensagem de ajuda
 	@echo "Comandos disponíveis:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 
-all: clean build test ## Limpa, compila e testa o projeto
+all: clean build test-with-migrate ## Limpa, compila e testa o projeto
 
 build: ## Compila o projeto
 	@echo "Compilando o projeto..."
@@ -25,6 +26,10 @@ run: ## Executa o projeto localmente
 	@go run $(MAIN_PATH)
 
 test: ## Executa os testes
+	@echo "Executando testes..."
+	@go test -v ./... -cover
+
+test-with-migrate: migrate-test ## Executa os testes com migração do banco
 	@echo "Executando testes..."
 	@go test -v ./... -cover
 
@@ -68,6 +73,14 @@ migrate-up: ## Executa as migrações do banco de dados
 migrate-down: ## Reverte as migrações do banco de dados
 	@echo "Revertendo migrações..."
 	@go run cmd/migrate/main.go down
+
+migrate-test: ## Executa as migrações no banco de testes
+	@echo "Executando migrações no banco de testes..."
+	@DATABASE_URL=$(TEST_DB_URL) go run cmd/migrate/main.go up
+
+migrate-test-down: ## Reverte as migrações no banco de testes
+	@echo "Revertendo migrações no banco de testes..."
+	@DATABASE_URL=$(TEST_DB_URL) go run cmd/migrate/main.go down
 
 dev: docker-up ## Inicia o ambiente de desenvolvimento
 	@echo "Ambiente de desenvolvimento iniciado"

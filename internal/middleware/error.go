@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	apperrors "server_kufatech/internal/errors"
-	"server_kufatech/pkg/logger"
+	apperrors "auth-template/internal/errors"
+	"auth-template/pkg/logger"
 )
 
 type ErrorHandler struct {

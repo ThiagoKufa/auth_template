@@ -11,15 +11,15 @@ import (
 	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/handlers"
-	"server_kufatech/internal/interfaces/repository"
-	"server_kufatech/internal/interfaces/service"
-	repository2 "server_kufatech/internal/repository"
-	"server_kufatech/internal/services"
-	"server_kufatech/pkg/auth"
-	"server_kufatech/pkg/database"
-	"server_kufatech/pkg/logger"
+	"auth-template/internal/config"
+	"auth-template/internal/handlers"
+	"auth-template/internal/interfaces/repository"
+	"auth-template/internal/interfaces/service"
+	
+	"auth-template/internal/services"
+	"auth-template/pkg/auth"
+	"auth-template/pkg/database"
+	"auth-template/pkg/logger"
 )
 
 // Injectors from wire.go:
@@ -72,7 +72,7 @@ func provideRedis(cfg *config.Config) *redis.Client {
 }
 
 func provideUserRepository(db *gorm.DB) repository.UserRepository {
-	return repository2.NewUserRepository(db)
+	return repository.NewUserRepository(db)
 }
 
 func provideTokenManager(cfg *config.Config) *auth.TokenManager {

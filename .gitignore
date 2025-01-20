@@ -1,6 +1,9 @@
 # Environment variables
 .env
 
+# Cursor rules
+.cursorrules
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

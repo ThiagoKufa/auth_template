@@ -1,4 +1,4 @@
-module server_kufatech
+module auth-template
 
 go 1.22.0
 

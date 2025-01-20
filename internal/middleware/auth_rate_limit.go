@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	apperrors "server_kufatech/internal/errors"
+	apperrors "auth-template/internal/errors"
 )
 
 type AuthRateLimiter struct {

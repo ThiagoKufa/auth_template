@@ -1,13 +1,13 @@
 package di
 
 import (
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/handlers"
-	"server_kufatech/internal/interfaces/repository"
-	"server_kufatech/internal/interfaces/service"
-	"server_kufatech/internal/services"
-	"server_kufatech/pkg/auth"
-	"server_kufatech/pkg/logger"
+	"auth-template/internal/config"
+	"auth-template/internal/handlers"
+	"auth-template/internal/interfaces/repository"
+	"auth-template/internal/interfaces/service"
+	"auth-template/internal/services"
+	"auth-template/pkg/auth"
+	"auth-template/pkg/logger"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"

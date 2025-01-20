@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server_kufatech/internal/handlers"
-	"server_kufatech/internal/middleware"
+	"auth-template/internal/handlers"
+	"auth-template/internal/middleware"
 )
 
 func SetupAuthRoutes(r chi.Router, authHandler *handlers.AuthHandler) {

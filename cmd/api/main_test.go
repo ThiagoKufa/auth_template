@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/di"
-	"server_kufatech/internal/middleware"
-	"server_kufatech/internal/routes"
+	"auth-template/internal/config"
+	"auth-template/internal/di"
+	"auth-template/internal/middleware"
+	"auth-template/internal/routes"
 )
 
 type Application struct {
@@ -28,6 +28,7 @@ type Application struct {
 func initializeTestApplication() *Application {
 	// Configurar ambiente de teste
 	os.Setenv("APP_ENV", "test")
+	os.Setenv("DATABASE_URL", "postgres://postgres:postgres@localhost:5000/kufatech_test?sslmode=disable")
 
 	// Carregar configuração de teste
 	cfg, err := config.Load()
@@ -66,6 +67,7 @@ func TestMain(m *testing.M) {
 
 	// Limpa o ambiente
 	os.Unsetenv("APP_ENV")
+	os.Unsetenv("DATABASE_URL")
 
 	os.Exit(code)
 }
@@ -121,6 +123,8 @@ func TestAuthEndpoints(t *testing.T) {
 		app.router.ServeHTTP(w, req)
 
 		// Tenta registrar o mesmo email
+		req = httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
 		w = httptest.NewRecorder()
 		app.router.ServeHTTP(w, req)
 
@@ -209,7 +213,7 @@ func TestAuthEndpoints(t *testing.T) {
 
 		body := map[string]string{
 			"email":    "test@example.com",
-			"password": "Teste@7890Ab",
+			"password": "Abc@1",
 		}
 		jsonBody, _ := json.Marshal(body)
 		req := httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(jsonBody))
@@ -220,7 +224,7 @@ func TestAuthEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		var response map[string]string
 		json.Unmarshal(w.Body.Bytes(), &response)
-		assert.Contains(t, response["error"], "senha deve ter pelo menos uma letra maiúscula")
+		assert.Contains(t, response["error"], "senha deve ter pelo menos 8 caracteres")
 	})
 
 	t.Run("Email_inválido", func(t *testing.T) {
@@ -267,7 +271,7 @@ func TestAuthEndpoints(t *testing.T) {
 
 		body := map[string]string{
 			"email":    "test@example.com",
-			"password": "Teste@7890Ab",
+			"password": "Teste1234Ab",
 		}
 		jsonBody, _ := json.Marshal(body)
 		req := httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(jsonBody))
@@ -317,6 +321,17 @@ func TestAuthEndpoints(t *testing.T) {
 		var response map[string]string
 		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Contains(t, response["error"], "senha contém uma sequência de caracteres proibida")
+	})
+
+	t.Run("Health_Check", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/health", nil)
+		w := httptest.NewRecorder()
+		app.router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		var response map[string]string
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, "healthy", response["status"])
 	})
 }
 

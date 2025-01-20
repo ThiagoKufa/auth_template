@@ -1,9 +1,9 @@
 package logger
 
 import (
+	"auth-template/internal/config"
 	"log"
 	"os"
-	"server_kufatech/internal/config"
 )
 
 type Logger struct {

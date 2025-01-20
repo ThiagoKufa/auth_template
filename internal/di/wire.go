@@ -10,15 +10,15 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/handlers"
-	"server_kufatech/internal/interfaces/repository"
-	"server_kufatech/internal/interfaces/service"
-	repo "server_kufatech/internal/repository"
-	"server_kufatech/internal/services"
-	"server_kufatech/pkg/auth"
-	"server_kufatech/pkg/database"
-	"server_kufatech/pkg/logger"
+	"auth-template/internal/config"
+	"auth-template/internal/handlers"
+	"auth-template/internal/interfaces/repository"
+	"auth-template/internal/interfaces/service"
+	repo "auth-template/internal/repository"
+	"auth-template/internal/services"
+	"auth-template/pkg/auth"
+	"auth-template/pkg/database"
+	"auth-template/pkg/logger"
 )
 
 var containerSet = wire.NewSet(

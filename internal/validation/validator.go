@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	apperrors "server_kufatech/internal/errors"
+	apperrors "auth-template/internal/errors"
 )
 
 type PasswordPolicy struct {

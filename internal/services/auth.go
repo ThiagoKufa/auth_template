@@ -6,13 +6,13 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"server_kufatech/internal/config"
-	"server_kufatech/internal/entity"
-	apperrors "server_kufatech/internal/errors"
-	"server_kufatech/internal/interfaces/repository"
-	"server_kufatech/internal/interfaces/service"
-	"server_kufatech/internal/validation"
-	"server_kufatech/pkg/auth"
+	"auth-template/internal/config"
+	"auth-template/internal/entity"
+	apperrors "auth-template/internal/errors"
+	"auth-template/internal/interfaces/repository"
+	"auth-template/internal/interfaces/service"
+	"auth-template/internal/validation"
+	"auth-template/pkg/auth"
 )
 
 type AuthService struct {

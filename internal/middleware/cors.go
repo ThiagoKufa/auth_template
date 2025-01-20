@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"server_kufatech/internal/config"
+	"auth-template/internal/config"
 )
 
 // CORS retorna um middleware para configurar o CORS
