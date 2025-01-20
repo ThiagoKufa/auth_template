@@ -1,6 +1,7 @@
 package service
 
 import (
+	"auth-template/internal/entity"
 	"context"
 )
 
@@ -15,4 +16,5 @@ type AuthService interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (*TokenPair, error)
 	ValidateAccessToken(ctx context.Context, token string) error
 	Logout(ctx context.Context, refreshToken string) error
+	GetUserFromToken(ctx context.Context, token string) (*entity.User, error)
 }

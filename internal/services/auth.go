@@ -161,3 +161,17 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 
 	return nil
 }
+
+func (s *AuthService) GetUserFromToken(ctx context.Context, token string) (*entity.User, error) {
+	claims, err := s.tokenManager.ValidateToken(token, auth.TokenTypeAccess)
+	if err != nil {
+		return nil, apperrors.NewUnauthorizedError("token inválido")
+	}
+
+	user, err := s.userRepo.FindByID(ctx, claims.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
+	}
+
+	return user, nil
+}

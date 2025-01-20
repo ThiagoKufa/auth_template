@@ -21,5 +21,11 @@ func SetupAuthRoutes(r chi.Router, authHandler *handlers.AuthHandler) {
 		r.Post("/register", authHandler.Register)
 		r.Post("/refresh", authHandler.Refresh)
 		r.Post("/logout", authHandler.Logout)
+
+		// Rotas protegidas
+		r.Group(func(r chi.Router) {
+			r.Use(authHandler.AuthMiddleware)
+			r.Get("/me", authHandler.Me)
+		})
 	})
 }

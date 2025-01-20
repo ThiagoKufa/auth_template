@@ -41,6 +41,11 @@ type tokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type userResponse struct {
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
+}
+
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	h.log.Info("Request: %s %s", r.Method, r.URL.Path)
 
@@ -128,6 +133,30 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	h.log.Info("Request: %s %s", r.Method, r.URL.Path)
+
+	token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if token == "" {
+		h.writeError(w, apperrors.NewUnauthorizedError("token não fornecido"))
+		return
+	}
+
+	user, err := h.authService.GetUserFromToken(r.Context(), token)
+	if err != nil {
+		h.log.Error("Erro ao obter usuário do token: %v", err)
+		h.writeError(w, err)
+		return
+	}
+
+	resp := userResponse{
+		ID:    user.ID,
+		Email: user.Email,
+	}
+
+	h.writeJSON(w, http.StatusOK, resp)
 }
 
 func (h *AuthHandler) writeJSON(w http.ResponseWriter, status int, data interface{}) {

@@ -11,6 +11,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *entity.User) error
 	FindByEmail(ctx context.Context, email string) (*entity.User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	FindByID(ctx context.Context, id string) (*entity.User, error)
 }
 
 type userRepository struct {
@@ -43,4 +44,13 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
