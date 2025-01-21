@@ -5,18 +5,20 @@ API de autenticação desenvolvida em Go, fornecendo endpoints seguros para regi
 ## Características
 
 - Registro e login de usuários
-- Validação robusta de senhas
-- Autenticação via JWT (JSON Web Tokens)
-- Health check para monitoramento
-- Rate limiting para proteção contra ataques
+- Validação robusta de senhas e emails
+- Autenticação via JWT com refresh tokens
+- Proteção contra força bruta
+- Rate limiting por IP
+- Blacklist de tokens
 - Logging estruturado
-- Testes automatizados
-- Documentação via Swagger
+- Documentação detalhada
 
 ## Requisitos
 
 - Go 1.22 ou superior
-- PostgreSQL 14 ou superior
+- PostgreSQL 16 ou superior
+- Redis 7 ou superior
+- Docker e Docker Compose (opcional)
 - Make
 
 ## Configuração
@@ -33,72 +35,47 @@ cp .env.example .env
 # Edite o arquivo .env com suas configurações
 ```
 
-3. Instale as dependências:
+3. Escolha um método para executar:
+
+### Usando Docker (Recomendado)
 ```bash
+# Inicia todos os serviços
+docker compose up -d
+
+# Verifica os logs
+docker compose logs -f
+```
+
+### Manualmente
+```bash
+# Instala dependências
 go mod download
-```
 
-4. Execute as migrações do banco de dados:
-```bash
+# Executa migrações
 make migrate
-```
 
-## Executando o Projeto
-
-1. Inicie o servidor:
-```bash
+# Inicia o servidor
 make run
 ```
 
-2. Execute os testes:
-```bash
-make test
-```
+## Documentação
 
-3. Verifique o código com o linter:
-```bash
-make lint
-```
+A documentação completa da API está disponível em:
 
-## Endpoints
-
-### Health Check
-```
-GET /health
-```
-Retorna o status da API e informações do sistema
-
-### Registro
-```
-POST /auth/register
-Content-Type: application/json
-
-{
-    "email": "usuario@exemplo.com",
-    "password": "Senha@123"
-}
-```
-
-### Login
-```
-POST /auth/login
-Content-Type: application/json
-
-{
-    "email": "usuario@exemplo.com",
-    "password": "Senha@123"
-}
-```
+- [Guia de Autenticação](doc/auth_guide.md) - Detalhes sobre endpoints, erros e exemplos
+- [Swagger/OpenAPI](http://localhost:8087/swagger/index.html) - Documentação interativa (quando o servidor estiver rodando)
 
 ## Validação de Senha
 
 A senha deve atender aos seguintes critérios:
-- Mínimo de 8 caracteres
-- Pelo menos uma letra maiúscula
-- Pelo menos uma letra minúscula
-- Pelo menos um número
-- Pelo menos um caractere especial
-- Não pode conter palavras comuns como "password", "123456", etc.
+1. Mínimo de 8 caracteres
+2. Pelo menos uma letra maiúscula
+3. Pelo menos uma letra minúscula
+4. Pelo menos um número
+5. Pelo menos um caractere especial
+6. Máximo de 3 caracteres repetidos consecutivos
+7. Mínimo de 5 caracteres únicos
+8. Não pode conter palavras comuns como "password", "123456", "qwerty"
 
 ## Estrutura do Projeto
 
@@ -107,20 +84,57 @@ A senha deve atender aos seguintes critérios:
 ├── cmd/                    # Pontos de entrada da aplicação
 │   ├── api/               # Servidor API
 │   └── migrate/           # Ferramenta de migração
+├── config/                # Arquivos de configuração
+├── doc/                   # Documentação
 ├── internal/              # Código interno da aplicação
-│   ├── auth/             # Lógica de autenticação
 │   ├── config/           # Configurações
 │   ├── database/         # Acesso ao banco de dados
+│   ├── entity/           # Entidades do domínio
+│   ├── errors/           # Erros customizados
 │   ├── handlers/         # Handlers HTTP
+│   ├── interfaces/       # Interfaces e contratos
 │   ├── middleware/       # Middlewares
-│   ├── models/           # Modelos de dados
 │   ├── routes/           # Definição de rotas
-│   ├── services/         # Lógica de negócio
-│   └── validation/       # Validação de dados
+│   └── services/         # Lógica de negócio
 ├── pkg/                  # Pacotes reutilizáveis
-├── migrations/           # Migrações do banco de dados
-└── tests/               # Testes
+│   ├── auth/            # Autenticação e tokens
+│   ├── database/        # Utilitários de banco
+│   ├── logger/          # Sistema de logs
+│   └── validation/      # Validação de dados
+└── scripts/             # Scripts utilitários
 ```
+
+## Endpoints Principais
+
+### Autenticação
+- `POST /auth/register` - Registro de usuário
+- `POST /auth/login` - Login com email/senha
+- `POST /auth/refresh` - Renovação de tokens
+- `POST /auth/logout` - Logout (invalidação de token)
+- `GET /auth/me` - Dados do usuário atual
+
+### Sistema
+- `GET /health` - Status da API e recursos
+
+Para exemplos detalhados de uso, consulte o [Guia de Autenticação](doc/auth_guide.md).
+
+## Segurança
+
+1. **Proteção de Senhas**:
+   - Hash bcrypt com custo configurável
+   - Validação robusta de força da senha
+   - Proteção contra senhas comuns
+
+2. **Tokens**:
+   - Access tokens de curta duração (15min)
+   - Refresh tokens de longa duração (30 dias)
+   - Rotação automática de refresh tokens
+   - Blacklist de tokens invalidados
+
+3. **Rate Limiting**:
+   - 100 requisições por hora por IP
+   - Proteção contra força bruta
+   - Blacklist temporária de IPs suspeitos
 
 ## Contribuindo
 
@@ -129,6 +143,40 @@ A senha deve atender aos seguintes critérios:
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
 5. Crie um Pull Request
+
+## Melhorias Concluídas ✅
+
+1. **Organização do Código**:
+   - [x] Consolidação dos pacotes de validação
+   - [x] Reorganização da estrutura de arquivos
+   - [x] Documentação atualizada
+
+2. **Segurança**:
+   - [x] Validação robusta de senhas
+   - [x] Proteção contra tokens inválidos
+   - [x] Rate limiting implementado
+
+3. **Configuração**:
+   - [x] Configurações unificadas
+   - [x] Suporte a múltiplos ambientes
+   - [x] Docker Compose otimizado
+
+## Próximos Passos
+
+1. **Documentação**:
+   - [ ] Implementar Swagger/OpenAPI
+   - [ ] Adicionar exemplos em outras linguagens
+   - [ ] Criar guia de contribuição
+
+2. **Testes**:
+   - [ ] Aumentar cobertura de testes
+   - [ ] Adicionar testes de integração
+   - [ ] Implementar testes de carga
+
+3. **Monitoramento**:
+   - [ ] Integrar Prometheus
+   - [ ] Configurar Grafana
+   - [ ] Adicionar tracing distribuído
 
 ## Licença
 
