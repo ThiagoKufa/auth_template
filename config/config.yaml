@@ -1,0 +1,91 @@
+# Configurações compartilhadas
+shared: &shared
+  server:
+    port: :8087
+    timeout:
+      read: 5s
+      write: 10s
+      idle: 120s
+  
+  database:
+    max_open_conns: 25
+    max_idle_conns: 25
+    conn_max_lifetime: 5m
+  
+  redis:
+    pool_size: 10
+    db: 0
+  
+  auth:
+    access_ttl: 15m
+    refresh_ttl: 720h
+    access_secret: dev_access_secret
+    refresh_secret: dev_refresh_secret
+  
+  cors:
+    allowed_origins:
+      - http://localhost:3000
+      - http://localhost:8080
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed_headers:
+      - Accept
+      - Authorization
+      - Content-Type
+      - X-CSRF-Token
+      - X-Request-ID
+    exposed_headers:
+      - Link
+      - X-Total-Count
+      - X-Request-ID
+    allow_credentials: true
+    max_age: 86400
+
+# Ambiente de desenvolvimento
+development:
+  <<: *shared
+  database:
+    host: localhost
+    port: 5000
+    user: postgres
+    password: postgres
+    name: kufatech_dev
+    ssl_mode: disable
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+
+# Ambiente de teste
+test:
+  <<: *shared
+  database:
+    host: localhost
+    port: 5000
+    user: postgres
+    password: postgres
+    name: kufatech_test
+    ssl_mode: disable
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+
+# Ambiente de produção
+production:
+  <<: *shared
+  database:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
+    name: ${DB_NAME}
+    ssl_mode: require
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD} 

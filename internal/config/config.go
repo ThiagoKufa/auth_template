@@ -99,13 +99,13 @@ func getEnvStringSliceOrDefault(key string, defaultValue []string) []string {
 func Load() (*Config, error) {
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:     getEnvOrDefault("SERVER_PORT", "8081"),
+			Port:     getEnvOrDefault("SERVER_PORT", ":8081"),
 			Timeout:  getEnvDurationOrDefault("SERVER_TIMEOUT", 30*time.Second),
 			Compress: true,
 		},
 		Database: DatabaseConfig{
 			Host:     getEnvOrDefault("DB_HOST", "localhost"),
-			Port:     getEnvIntOrDefault("DB_PORT", 5432),
+			Port:     getEnvIntOrDefault("DB_PORT", 5000),
 			User:     getEnvOrDefault("DB_USER", "postgres"),
 			Password: getEnvOrDefault("DB_PASSWORD", "postgres"),
 			Name:     getEnvOrDefault("DB_NAME", "kufatech_dev"),

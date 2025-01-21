@@ -6,6 +6,7 @@ MAIN_PATH=./cmd/api
 BUILD_DIR=./build
 DOCKER_COMPOSE=docker-compose
 TEST_DB_URL=postgres://postgres:postgres@localhost:5000/kufatech_test?sslmode=disable
+DATABASE_URL=postgres://postgres:postgres@localhost:5000/kufatech_dev?sslmode=disable
 
 # Cores para output
 GREEN=\033[0;32m
@@ -68,11 +69,11 @@ lint: ## Executa o linter
 
 migrate-up: ## Executa as migrações do banco de dados
 	@echo "Executando migrações..."
-	@go run cmd/migrate/main.go up
+	@DATABASE_URL=$(DATABASE_URL) go run cmd/migrate/main.go up
 
 migrate-down: ## Reverte as migrações do banco de dados
 	@echo "Revertendo migrações..."
-	@go run cmd/migrate/main.go down
+	@DATABASE_URL=$(DATABASE_URL) go run cmd/migrate/main.go down
 
 migrate-test: ## Executa as migrações no banco de testes
 	@echo "Executando migrações no banco de testes..."

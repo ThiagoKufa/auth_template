@@ -11,8 +11,8 @@ import (
 	apperrors "auth-template/internal/errors"
 	"auth-template/internal/interfaces/repository"
 	"auth-template/internal/interfaces/service"
-	"auth-template/internal/validation"
 	"auth-template/pkg/auth"
+	"auth-template/pkg/validation"
 )
 
 type AuthService struct {

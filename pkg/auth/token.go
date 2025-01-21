@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/redis/go-redis/v9"
 )
 
 type TokenType string
@@ -14,6 +16,7 @@ const (
 	TokenTypeRefresh TokenType = "refresh"
 )
 
+// Claims representa os dados armazenados no token JWT
 type Claims struct {
 	UserID string    `json:"user_id"`
 	Type   TokenType `json:"type"`
@@ -24,6 +27,7 @@ func (c *Claims) Valid() error {
 	return c.StandardClaims.Valid()
 }
 
+// TokenManager gerencia a geração e validação de tokens JWT
 type TokenManager struct {
 	accessSecret    string
 	refreshSecret   string
@@ -40,6 +44,7 @@ func NewTokenManager(accessSecret, refreshSecret string, accessTokenTTL, refresh
 	}
 }
 
+// GenerateToken gera um novo token JWT do tipo especificado
 func (m *TokenManager) GenerateToken(userID string, tokenType TokenType) (string, error) {
 	var duration time.Duration
 	var secret string
@@ -68,6 +73,7 @@ func (m *TokenManager) GenerateToken(userID string, tokenType TokenType) (string
 	return token.SignedString([]byte(secret))
 }
 
+// ValidateToken valida um token JWT e retorna suas claims
 func (m *TokenManager) ValidateToken(tokenString string, expectedType TokenType) (*Claims, error) {
 	var secret string
 	switch expectedType {
@@ -100,4 +106,29 @@ func (m *TokenManager) ValidateToken(tokenString string, expectedType TokenType)
 	}
 
 	return claims, nil
+}
+
+// TokenStore gerencia o armazenamento de tokens na blacklist
+type TokenStore struct {
+	redis *redis.Client
+}
+
+func NewTokenStore(redis *redis.Client) *TokenStore {
+	return &TokenStore{
+		redis: redis,
+	}
+}
+
+// Add adiciona um token à blacklist
+func (s *TokenStore) Add(ctx context.Context, token string, ttl time.Duration) error {
+	return s.redis.Set(ctx, fmt.Sprintf("blacklist:%s", token), true, ttl).Err()
+}
+
+// IsBlacklisted verifica se um token está na blacklist
+func (s *TokenStore) IsBlacklisted(ctx context.Context, token string) (bool, error) {
+	exists, err := s.redis.Exists(ctx, fmt.Sprintf("blacklist:%s", token)).Result()
+	if err != nil {
+		return false, fmt.Errorf("erro ao verificar blacklist: %w", err)
+	}
+	return exists > 0, nil
 }

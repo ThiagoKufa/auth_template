@@ -43,7 +43,7 @@ services:
     env_file:
       - .env.docker
     ports:
-      - "8081:8081"
+      - "8087:8087"
     depends_on:
       postgres:
         condition: service_healthy

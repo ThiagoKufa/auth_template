@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	baseURL      = "http://localhost:8081"
+	baseURL      = "http://localhost:8087"
 	testEmail    = "test@example.com"
 	testPassword = "Teste@7890Ab" // Senha forte que atende aos requisitos
 )

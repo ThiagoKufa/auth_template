@@ -18,6 +18,8 @@ func NewDB(cfg *config.Config) (*gorm.DB, error) {
 		cfg.Database.SSLMode,
 	)
 
+	fmt.Println("dsn", dsn)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("erro ao conectar ao banco de dados: %w", err)

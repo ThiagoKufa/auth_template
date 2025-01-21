@@ -1,9 +1,6 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22-bullseye AS builder
 
 WORKDIR /app
-
-# Instalar dependências de build
-RUN apk add --no-cache gcc musl-dev
 
 # Copiar arquivos de dependências
 COPY go.mod go.sum ./
@@ -16,9 +13,14 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -o main ./cmd/api
 
 # Imagem final
-FROM alpine:latest
+FROM debian:bullseye-slim
 
 WORKDIR /app
+
+# Instalar dependências necessárias
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copiar binário compilado
 COPY --from=builder /app/main .
