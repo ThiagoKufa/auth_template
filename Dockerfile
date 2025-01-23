@@ -24,10 +24,9 @@ RUN apt-get update && \
 
 # Copiar binário compilado
 COPY --from=builder /app/main .
-COPY --from=builder /app/.env.docker ./.env
 
 # Expor porta da API
-EXPOSE 8081
+EXPOSE 8087
 
 # Comando para executar a aplicação
 CMD ["./main"] 
