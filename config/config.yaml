@@ -1,7 +1,7 @@
 # Configurações compartilhadas
 shared: &shared
   server:
-    port: :8087
+    port: :8088
     timeout:
       read: 5s
       write: 10s
